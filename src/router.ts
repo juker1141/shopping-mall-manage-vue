@@ -18,6 +18,50 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'empty' },
   },
   {
+    path: '/products',
+    name: 'Products',
+    component: Forms,
+    meta: { title: '商品管理' },
+  },
+  {
+    path: '/orders',
+    name: 'Orders',
+    component: Forms,
+    meta: { title: '訂單管理' },
+  },
+  {
+    path: '/coupons',
+    name: 'Coupons',
+    component: Forms,
+    meta: { title: '優惠卷管理' },
+  },
+  {
+    path: '/members',
+    name: 'Members',
+    component: Forms,
+    meta: { title: '會員管理' },
+  },
+  {
+    path: '/account',
+    name: 'Account',
+    component: Dashboard,
+    meta: { title: '帳號管理' },
+    children: [
+      {
+        path: 'admin-users',
+        name: 'AdminUsers',
+        component: Dashboard,
+        meta: { title: '帳號列表' },
+      },
+      {
+        path: 'roles',
+        name: 'Roles',
+        component: Dashboard,
+        meta: { title: '角色列表' },
+      },
+    ],
+  },
+  {
     path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
