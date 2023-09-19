@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useSidebar } from '../composables/useSidebar'
 
 const { isOpen } = useSidebar()
 const isShowAccountList = ref(false)
+const route = useRoute()
 
 const activeClass = ref(
   'bg-gray-600 bg-opacity-25 text-gray-100 border-gray-100',
@@ -11,8 +13,7 @@ const activeClass = ref(
 const inactiveClass = ref(
   'border-gray-900 text-gray-500 hover:bg-gray-600 hover:bg-opacity-25 hover:text-gray-100',
 )
-
-// const activeAdminPageClass = ref('rotate-180')
+const routeName = computed(() => route.name || '')
 </script>
 
 <script lang="ts">
@@ -61,10 +62,10 @@ export default {
         </div>
       </div>
 
-      <nav class="mt-10">
+      <nav class="mt-10 grow pb-16">
         <router-link
           class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-          :class="[$route.name === 'Products' ? activeClass : inactiveClass]"
+          :class="[routeName.includes('Products') ? activeClass : inactiveClass]"
           to="/products"
         >
           <div class="w-5 h-5 flex justify-center items-center">
@@ -75,7 +76,7 @@ export default {
 
         <router-link
           class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-          :class="[$route.name === 'Orders' ? activeClass : inactiveClass]"
+          :class="[routeName.includes('Orders') ? activeClass : inactiveClass]"
           to="/orders"
         >
           <div class="w-5 h-5 flex justify-center items-center">
@@ -86,7 +87,7 @@ export default {
 
         <router-link
           class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-          :class="[$route.name === 'Coupons' ? activeClass : inactiveClass]"
+          :class="[routeName.includes('Coupons') ? activeClass : inactiveClass]"
           to="/coupons"
         >
           <div class="w-5 h-5 flex justify-center items-center">
@@ -97,7 +98,7 @@ export default {
 
         <router-link
           class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-          :class="[$route.name === 'Members' ? activeClass : inactiveClass]"
+          :class="[routeName.includes('Members') ? activeClass : inactiveClass]"
           to="/members"
         >
           <div class="w-5 h-5 flex justify-center items-center">
@@ -110,7 +111,7 @@ export default {
           <a
             href="#"
             class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4 relative"
-            :class="[$route.name === 'Accounts' ? activeClass : inactiveClass]"
+            :class="[routeName.includes('Manager') ? activeClass : inactiveClass]"
             @click.prevent="isShowAccountList = !isShowAccountList"
           >
             <div class="w-5 h-5 flex justify-center items-center">
@@ -123,8 +124,8 @@ export default {
             <li>
               <router-link
                 class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-                :class="[$route.name === 'AdminUsers' ? activeClass : inactiveClass]"
-                to="/account/admin-users"
+                :class="[routeName.includes('Accounts') ? activeClass : inactiveClass]"
+                to="/manager/accounts"
               >
                 <span class="mx-10">帳號列表</span>
               </router-link>
@@ -132,8 +133,8 @@ export default {
             <li>
               <router-link
                 class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-                :class="[$route.name === 'Roles' ? activeClass : inactiveClass]"
-                to="/account/roles"
+                :class="[routeName.includes('Roles') ? activeClass : inactiveClass]"
+                to="/manager/roles"
               >
                 <span class="mx-10">角色列表</span>
               </router-link>
@@ -285,6 +286,14 @@ export default {
           <span class="mx-4">Blank</span>
         </router-link>
       </nav>
+      <div class="flex justify-between items-center px-6 py-4 sticky bottom-0 left-0 w-full bg-gray-700 z-50 text-white font-medium">
+        <span class="text-xl">Admin01</span>
+        <router-link to="/">
+          <button type="button" class="w-10 h-10 border-2 border-white rounded-full">
+            <i class="fa-solid fa-arrow-right-from-bracket" />
+          </button>
+        </router-link>
+      </div>
     </div>
   </div>
 </template>

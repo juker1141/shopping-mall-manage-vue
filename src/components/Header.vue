@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSidebar } from '../composables/useSidebar'
-
-const dropdownOpen = ref(false)
-const { isOpen } = useSidebar()
+import Breadcrumb from './Breadcrumb.vue'
 
 const { currentRoute } = useRouter()
 
-const pageTitle = computed(
-  () => `${currentRoute.value.meta.title || ''}`,
+const breadcrumb = computed(
+  () => currentRoute.value.meta.breadcrumb,
 )
+const pageTitle = computed(() => currentRoute.value.meta.pageTitle)
+// const dropdownOpen = ref(false)
+const { isOpen } = useSidebar()
 </script>
 
 <script lang="ts">
 export default {
   name: 'HeaderComponent',
+  components: { Breadcrumb },
 }
 </script>
 
@@ -43,13 +45,15 @@ export default {
           />
         </svg>
       </button>
-
-      <div class="relative mx-4 lg:mx-0">
-        <span class="text-2xl font-bold">{{ pageTitle }}</span>
-      </div>
+      <h2 class="mx-4 text-xl font-medium">
+        {{ pageTitle }}
+      </h2>
     </div>
 
-    <div class="flex items-center">
+    <div class="relative mx-4 lg:mx-0">
+      <Breadcrumb :breadcrumb="breadcrumb" :page-title="pageTitle" />
+    </div>
+    <!-- <div class="flex items-center">
       <button class="flex mx-4 text-gray-600 focus:outline-none">
         <svg
           class="w-6 h-6"
@@ -66,7 +70,6 @@ export default {
           />
         </svg>
       </button>
-
       <div class="relative">
         <button
           class="relative z-10 block w-8 h-8 overflow-hidden rounded-full shadow focus:outline-none"
@@ -114,6 +117,6 @@ export default {
           </div>
         </transition>
       </div>
-    </div>
+    </div> -->
   </header>
 </template>

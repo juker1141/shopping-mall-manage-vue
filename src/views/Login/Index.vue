@@ -1,13 +1,72 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { loginAdminUserHandler } from '../../api/adminUserHandler'
+import { AuthToken, RefreshToken, RememberAccount, getCookie, removeCookie, setCookie } from '../../util/cookie/index'
 
 const router = useRouter()
-const email = ref('johndoe@mail.com')
-const password = ref('@#!@#asdf1231!_!@#')
+export interface LoginFormValue {
+  account: string
+  password: string
+}
+const formValue = ref<LoginFormValue>({
+  account: 'test0001',
+  password: 'test0001',
+})
+const isNeedRember = ref(false)
 
-function login() {
-  router.push('/dashboard')
+onMounted(() => {
+  const remeberAccount = getCookie(RememberAccount)
+  if (remeberAccount)
+    formValue.value.account = remeberAccount
+})
+
+interface AdminUser {
+  id: number
+  account: string
+  full_name: string
+  status: 0 | 1
+  password_changed_at: string
+  created_at: string
+}
+
+interface Permission {
+  id: number
+  name: string
+  created_at: string
+}
+
+interface LoginResult {
+  session_id: string
+  access_token: string
+  access_token_expires_at: string
+  refresh_token: string
+  refresh_token_expires_at: string
+  admin_user: AdminUser
+  permission_list: Permission[]
+}
+
+async function login() {
+  if (isNeedRember.value)
+    setCookie(RememberAccount, formValue.value.account)
+  else
+    removeCookie(RememberAccount)
+
+  try {
+    const result: LoginResult = await loginAdminUserHandler(formValue.value)
+    if (getCookie(AuthToken))
+      removeCookie(AuthToken)
+    if (getCookie(RefreshToken))
+      removeCookie(RefreshToken)
+
+    setCookie(AuthToken, result.access_token)
+    setCookie(RefreshToken, result.refresh_token)
+    console.log(result)
+  // router.push('/dashboard')
+  }
+  catch (err: any) {
+
+  }
 }
 </script>
 
@@ -39,10 +98,10 @@ function login() {
 
       <form class="mt-4" @submit.prevent="login">
         <label class="block">
-          <span class="text-sm text-gray-700">Email</span>
+          <span class="text-sm text-gray-700">Account</span>
           <input
-            v-model="email"
-            type="email"
+            v-model="formValue.account"
+            type="text"
             class="block w-full mt-1 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
           >
         </label>
@@ -50,7 +109,7 @@ function login() {
         <label class="block mt-3">
           <span class="text-sm text-gray-700">Password</span>
           <input
-            v-model="password"
+            v-model="formValue.password"
             type="password"
             class="block w-full mt-1 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500"
           >
@@ -59,7 +118,7 @@ function login() {
         <div class="flex items-center justify-between mt-4">
           <div>
             <label class="inline-flex items-center">
-              <input type="checkbox" class="text-indigo-600 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500">
+              <input v-model="isNeedRember" type="checkbox" class="text-indigo-600 border-gray-200 rounded-md focus:border-indigo-600 focus:ring focus:ring-opacity-40 focus:ring-indigo-500">
               <span class="mx-2 text-sm text-gray-600">Remember me</span>
             </label>
           </div>
@@ -83,4 +142,5 @@ function login() {
       </form>
     </div>
   </div>
-</template>
+</template>../util/cookie/cookie
+../api/adminUserHandler
