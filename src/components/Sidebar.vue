@@ -1,11 +1,20 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { useSidebar } from '../composables/useSidebar'
+import { useAdminUserStore } from '../stores/AdminUserStore'
+
+import { AuthToken, RefreshToken, removeLoginCookies } from '../util/cookie'
+
+import { sideBarData } from '../util/sideBarData'
+
+const route = useRoute()
+const router = useRouter()
+const { adminUser, permissionList } = storeToRefs(useAdminUserStore())
 
 const { isOpen } = useSidebar()
 const isShowAccountList = ref(false)
-const route = useRoute()
 
 const activeClass = ref(
   'bg-gray-600 bg-opacity-25 text-gray-100 border-gray-100',
@@ -13,7 +22,32 @@ const activeClass = ref(
 const inactiveClass = ref(
   'border-gray-900 text-gray-500 hover:bg-gray-600 hover:bg-opacity-25 hover:text-gray-100',
 )
-const routeName = computed(() => route.name || '')
+
+const routePath = computed(() => route.path || '')
+
+watch(routePath, () => {
+  if (routePath.value.includes('/manager') || routePath.value.includes('/manager'))
+    isShowAccountList.value = true
+})
+
+function findCommonObjects(a: typeof sideBarData, b: typeof permissionList.value) {
+  const result = []
+
+  for (const objA of a) {
+    const commonObj = b.find(objB => objB.name === objA.title)
+    if (commonObj)
+      result.push(objA)
+  }
+
+  return result
+}
+
+const sideBarList = computed(() => findCommonObjects(sideBarData, permissionList.value))
+
+function logout() {
+  removeLoginCookies([AuthToken, RefreshToken])
+  router.push({ name: 'Login' })
+}
 </script>
 
 <script lang="ts">
@@ -63,9 +97,60 @@ export default {
       </div>
 
       <nav class="mt-10 grow pb-16">
+        <template v-for="data in sideBarList" :key="data.path">
+          <router-link
+            v-if="data.style === 'default'"
+            class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+            :class="[routePath.includes(data.path) ? activeClass : inactiveClass]"
+            :to="data.path"
+          >
+            <div class="w-5 h-5 flex justify-center items-center">
+              <FontAwesomeIcon :icon="data.icon" size="lg" />
+            </div>
+            <span class="mx-4">{{ data.title }}</span>
+          </router-link>
+
+          <div v-else class="relative">
+            <a
+              href="#"
+              class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4 relative"
+              :class="[inactiveClass]"
+              @click.prevent="isShowAccountList = !isShowAccountList"
+            >
+              <div class="w-5 h-5 flex justify-center items-center">
+                <FontAwesomeIcon :icon="data.icon" size="lg" />
+              </div>
+              <span class="mx-4 grow">{{ data.title }}</span>
+
+              <FontAwesomeIcon :icon="['fas', 'chevron-up']" class="justify-items-end transition-transform duration-300 ease-in-out" :class="[isShowAccountList ? 'rotate-180' : 'rotate-0']" />
+            </a>
+            <ul class="transition-[height] overflow-hidden duration-300 ease-in-out" :class="[isShowAccountList ? 'h-28' : 'h-0']">
+              <li v-for="childData in data.child" :key="childData.path">
+                <router-link
+                  class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+                  :class="[routePath.includes(childData.path) ? activeClass : inactiveClass]"
+                  :to="childData.path"
+                >
+                  <span class="mx-10">{{ childData.title }}</span>
+                </router-link>
+              </li>
+            </ul>
+          </div>
+        </template>
+        <!-- <router-link
+          class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
+          :class="[routePath.includes('news') ? activeClass : inactiveClass]"
+          to="/news"
+        >
+          <div class="w-5 h-5 flex justify-center items-center">
+            <i class="fa-solid fa-newspaper text-xl" />
+          </div>
+          <span class="mx-4">最新消息管理</span>
+        </router-link>
+
         <router-link
           class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-          :class="[routeName.includes('Products') ? activeClass : inactiveClass]"
+          :class="[routePath.includes('products') ? activeClass : inactiveClass]"
           to="/products"
         >
           <div class="w-5 h-5 flex justify-center items-center">
@@ -76,7 +161,7 @@ export default {
 
         <router-link
           class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-          :class="[routeName.includes('Orders') ? activeClass : inactiveClass]"
+          :class="[routePath.includes('orders') ? activeClass : inactiveClass]"
           to="/orders"
         >
           <div class="w-5 h-5 flex justify-center items-center">
@@ -87,7 +172,7 @@ export default {
 
         <router-link
           class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-          :class="[routeName.includes('Coupons') ? activeClass : inactiveClass]"
+          :class="[routePath.includes('coupons') ? activeClass : inactiveClass]"
           to="/coupons"
         >
           <div class="w-5 h-5 flex justify-center items-center">
@@ -98,7 +183,7 @@ export default {
 
         <router-link
           class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-          :class="[routeName.includes('Members') ? activeClass : inactiveClass]"
+          :class="[routePath.includes('members') ? activeClass : inactiveClass]"
           to="/members"
         >
           <div class="w-5 h-5 flex justify-center items-center">
@@ -111,7 +196,7 @@ export default {
           <a
             href="#"
             class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4 relative"
-            :class="[routeName.includes('Manager') ? activeClass : inactiveClass]"
+            :class="[inactiveClass]"
             @click.prevent="isShowAccountList = !isShowAccountList"
           >
             <div class="w-5 h-5 flex justify-center items-center">
@@ -124,7 +209,7 @@ export default {
             <li>
               <router-link
                 class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-                :class="[routeName.includes('Accounts') ? activeClass : inactiveClass]"
+                :class="[routePath.includes('/manager/accounts') ? activeClass : inactiveClass]"
                 to="/manager/accounts"
               >
                 <span class="mx-10">帳號列表</span>
@@ -133,14 +218,14 @@ export default {
             <li>
               <router-link
                 class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
-                :class="[routeName.includes('Roles') ? activeClass : inactiveClass]"
+                :class="[routePath.includes('roles') ? activeClass : inactiveClass]"
                 to="/manager/roles"
               >
                 <span class="mx-10">角色列表</span>
               </router-link>
             </li>
           </ul>
-        </div>
+        </div> -->
 
         <router-link
           class="flex items-center px-6 py-2 mt-4 duration-200 border-l-4"
@@ -287,12 +372,10 @@ export default {
         </router-link>
       </nav>
       <div class="flex justify-between items-center px-6 py-4 sticky bottom-0 left-0 w-full bg-gray-700 z-50 text-white font-medium">
-        <span class="text-xl">Admin01</span>
-        <router-link to="/">
-          <button type="button" class="w-10 h-10 border-2 border-white rounded-full">
-            <i class="fa-solid fa-arrow-right-from-bracket" />
-          </button>
-        </router-link>
+        <span class="text-xl">{{ adminUser.account }}</span>
+        <button type="button" class="w-10 h-10 border-2 border-white rounded-full" @click.prevent="logout">
+          <i class="fa-solid fa-arrow-right-from-bracket" />
+        </button>
       </div>
     </div>
   </div>

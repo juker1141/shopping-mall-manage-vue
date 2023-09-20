@@ -5,7 +5,7 @@ import Dashboard from './views/Dashboard.vue'
 import Forms from './views/Forms.vue'
 import Tables from './views/Tables.vue'
 import UIElements from './views/UIElements.vue'
-import Login from './views/Login/Login.vue'
+import Login from './views/Login/Index.vue'
 import Modal from './views/Modal.vue'
 import Card from './views/Card.vue'
 import Blank from './views/Blank.vue'
@@ -28,6 +28,12 @@ const routes: RouteRecordRaw[] = [
     name: 'Login',
     component: Login,
     meta: { layout: 'empty' },
+  },
+  {
+    path: '/news',
+    name: 'News',
+    component: Forms,
+    meta: { pageTitle: '最新消息管理' },
   },
   {
     path: '/products',

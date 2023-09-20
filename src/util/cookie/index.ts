@@ -13,3 +13,10 @@ export const removeCookie = (key: CookieKey) => Cookies.remove(key)
 export function setCookie(key: CookieKey, value: string) {
   return Cookies.set(key, value, { expires: 7 })
 }
+
+export function removeLoginCookies(cookiesKey: CookieKey[]) {
+  cookiesKey.forEach((key) => {
+    if (getCookie(key))
+      removeCookie(key)
+  })
+}

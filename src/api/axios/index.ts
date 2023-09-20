@@ -6,7 +6,7 @@ import router from '../../router'
 
 export const getAccessToken = () => `Bearer ${getCookie(AuthToken)}`
 
-export const customAxios = axios.create({
+export const Axios = axios.create({
   baseURL: '',
   headers: {
     'Content-Type': 'application/json',
@@ -15,14 +15,14 @@ export const customAxios = axios.create({
 })
 
 // 此處的 customAxios 為我們create的實體
-customAxios.interceptors.response.use(
+Axios.interceptors.response.use(
   (response) => {
     // 成功就是成功，不需要多作處理
     return response
   },
   (error) => {
     // 403 為 token 過期，會將使用者踢回登陸頁
-    if (error.response && error.response.status === 403)
+    if (error.response && (error.response.status === 403 || error.response.status === 401))
       router.push({ name: 'Login' })
       // ElMessage({
       //   message: '驗證失敗，請重新登入',

@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { loginAdminUserHandler } from '../../api/adminUserHandler'
-import { AuthToken, RefreshToken, RememberAccount, getCookie, removeCookie, setCookie } from '../../util/cookie/index'
+import type { LoginFormValue } from '../../api/adminUserHandler'
+import { loginAdminUser } from '../../api/adminUserHandler'
+import { AuthToken, RefreshToken, RememberAccount, getCookie, removeCookie, removeLoginCookies, setCookie } from '../../util/cookie/index'
 
 const router = useRouter()
-export interface LoginFormValue {
-  account: string
-  password: string
-}
 const formValue = ref<LoginFormValue>({
   account: 'test0001',
   password: 'test0001',
@@ -21,31 +18,6 @@ onMounted(() => {
     formValue.value.account = remeberAccount
 })
 
-interface AdminUser {
-  id: number
-  account: string
-  full_name: string
-  status: 0 | 1
-  password_changed_at: string
-  created_at: string
-}
-
-interface Permission {
-  id: number
-  name: string
-  created_at: string
-}
-
-interface LoginResult {
-  session_id: string
-  access_token: string
-  access_token_expires_at: string
-  refresh_token: string
-  refresh_token_expires_at: string
-  admin_user: AdminUser
-  permission_list: Permission[]
-}
-
 async function login() {
   if (isNeedRember.value)
     setCookie(RememberAccount, formValue.value.account)
@@ -53,19 +25,16 @@ async function login() {
     removeCookie(RememberAccount)
 
   try {
-    const result: LoginResult = await loginAdminUserHandler(formValue.value)
-    if (getCookie(AuthToken))
-      removeCookie(AuthToken)
-    if (getCookie(RefreshToken))
-      removeCookie(RefreshToken)
+    const response = await loginAdminUser(formValue.value)
 
-    setCookie(AuthToken, result.access_token)
-    setCookie(RefreshToken, result.refresh_token)
-    console.log(result)
-  // router.push('/dashboard')
+    removeLoginCookies([AuthToken, RefreshToken])
+
+    setCookie(AuthToken, response.access_token)
+    setCookie(RefreshToken, response.refresh_token)
+    router.push('/dashboard')
   }
   catch (err: any) {
-
+    console.log(err)
   }
 }
 </script>
