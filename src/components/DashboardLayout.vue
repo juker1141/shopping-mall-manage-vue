@@ -2,7 +2,7 @@
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAdminUserStore } from '../stores/AdminUserStore'
-import { getAdminUser } from '../api/adminUserHandler'
+import { getAdminUserInfo } from '../api/manager/adminUserHandler'
 import { AuthToken, getCookie } from '../util/cookie'
 import Sidebar from './Sidebar.vue'
 import Header from './Header.vue'
@@ -12,7 +12,7 @@ const adminUserStore = useAdminUserStore()
 
 async function getUserData() {
   try {
-    const response = await getAdminUser()
+    const response = await getAdminUserInfo()
     adminUserStore.updateAdminUserInfo(response)
   }
   catch (err) {
@@ -45,3 +45,4 @@ onMounted(async () => {
     </div>
   </div>
 </template>
+../api/manager/adminUserHandler

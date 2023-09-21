@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { AdminUser, AdminUserInfoResponse, Permission } from '../api/adminUserHandler'
+import type { AdminUser, AdminUserInfoResponse, Permission } from '../api/manager/adminUserHandler'
 
 export interface AdminUserInfo {
   adminUser: AdminUser

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import type { LoginFormValue } from '../../api/adminUserHandler'
-import { loginAdminUser } from '../../api/adminUserHandler'
+import type { LoginFormValue } from '../../api/manager/types'
+import { loginAdminUser } from '../../api/manager/adminUserHandler'
 import { AuthToken, RefreshToken, RememberAccount, getCookie, removeCookie, removeLoginCookies, setCookie } from '../../util/cookie/index'
 
 const router = useRouter()
@@ -113,3 +113,4 @@ async function login() {
   </div>
 </template>../util/cookie/cookie
 ../api/adminUserHandler
+../../api/manager/adminUserHandler../../api/manager/adminUserHandler
