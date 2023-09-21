@@ -64,6 +64,15 @@ const apiHandler = {
     })
     return res
   },
+  Patch: async ({ url, body }: ApiParams) => {
+    const res = await Axios.patch(url, body, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': getAccessToken(),
+      },
+    })
+    return res
+  },
   Put: async ({ url, body }: ApiParams) => {
     const res = await Axios.put(url, body, {
       headers: {

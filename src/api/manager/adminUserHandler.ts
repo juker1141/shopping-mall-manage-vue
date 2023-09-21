@@ -1,6 +1,6 @@
 import type { AxiosResponse } from 'axios'
 import apiHandler from '../apiHandler'
-import type { AdminUserInfoResponse, LoginFormValue, LoginResponse, RenewAccessTokenResponse } from './types'
+import type { AdminUserInfo, AdminUserResponse, GetAdminUsersResponse, LoginFormValue, LoginResponse, RenewAccessTokenResponse } from './types'
 
 export async function loginAdminUser({ account, password }: LoginFormValue): Promise<LoginResponse> {
   const url = `${import.meta.env.VITE_BACKEND_HOST}/login`
@@ -17,7 +17,7 @@ export async function loginAdminUser({ account, password }: LoginFormValue): Pro
   return res.data
 }
 
-export async function renewAccessToken(token: string): Promise<RenewAccessTokenResponse> {
+export async function refreshAccessToken(token: string): Promise<RenewAccessTokenResponse> {
   const url = `${import.meta.env.VITE_BACKEND_HOST}/tokens/renew_access`
 
   const body = {
@@ -31,12 +31,41 @@ export async function renewAccessToken(token: string): Promise<RenewAccessTokenR
   return res.data
 }
 
-export async function getAdminUserInfo(): Promise<AdminUserInfoResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager-user`
+export async function getAdminUserInfo(): Promise<AdminUserInfo> {
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager-user/info`
 
   const body = {}
 
-  const res: AxiosResponse<AdminUserInfoResponse> = await apiHandler.Get({
+  const res: AxiosResponse<AdminUserInfo> = await apiHandler.Get({
+    url,
+    body,
+  })
+  return res.data
+}
+
+export async function getAdminUsers(page: number, page_size = 10): Promise<GetAdminUsersResponse> {
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager-users`
+
+  const body = {
+    params: {
+      page,
+      page_size,
+    },
+  }
+
+  const res: AxiosResponse<GetAdminUsersResponse> = await apiHandler.Get({
+    url,
+    body,
+  })
+  return res.data
+}
+
+export async function getAdminUser(id: string): Promise<AdminUserResponse> {
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager-user/${id}`
+
+  const body = {}
+
+  const res: AxiosResponse<AdminUserResponse> = await apiHandler.Get({
     url,
     body,
   })

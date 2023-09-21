@@ -1,11 +1,21 @@
+import type { AxiosError } from 'axios'
 import axios from 'axios'
+import { ElMessage } from 'element-plus'
 
-import { AuthToken, RefreshToken, getCookie, setCookie } from '../../util/cookie'
-import { renewAccessToken } from '../manager/adminUserHandler'
-
-import router from '../../router'
+import { AuthToken, RefreshToken, getCookie, removeLoginCookies, setCookie } from '@/util/cookie'
+import router from '@/router'
+import { refreshAccessToken } from '@/api/manager/adminUserHandler'
 
 export const getAccessToken = () => `Bearer ${getCookie(AuthToken)}`
+
+interface ApiError {
+  error: string
+}
+
+export function getErrorMessage(err: AxiosError<ApiError>) {
+  if (err.response)
+    return err.response.data.error
+}
 
 // 是否正在刷新
 let isRefreshing = false
@@ -27,16 +37,15 @@ Axios.interceptors.response.use(
     return response
   },
   async (error) => {
-    // 403 為 token 過期，會將使用者踢回登陸頁
-    if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+    // 401 為 token 過期，會將使用者踢回登陸頁
+    if (error.response && (error.response.status === 401)) {
       const token = getCookie(RefreshToken)
       if (!token)
         throw new Error('unauthorized token')
       const config = error.config
       if (!isRefreshing) {
         isRefreshing = true
-
-        return renewAccessToken(token)
+        return refreshAccessToken(token)
           .then((res) => {
             // refresh Token 會拿到最新的 token
             const token = res.access_token
@@ -55,14 +64,15 @@ Axios.interceptors.response.use(
             // 更新完 token，再去執行一次原本要做的事
             return Axios(config)
           })
-          .catch((error) => {
-            console.error('Token error', error)
+          .catch(() => {
             // 刷新 token 仍失敗
+            removeLoginCookies([AuthToken, RefreshToken])
+
+            ElMessage({
+              message: 'Token 驗證失敗，請重新登入',
+              type: 'error',
+            })
             router.push({ name: 'Login' })
-            // ElMessage({
-            //   message: '驗證失敗，請重新登入',
-            //   type: 'error',
-            // })
           })
           .finally(() => {
             isRefreshing = false
@@ -71,6 +81,7 @@ Axios.interceptors.response.use(
       else {
         // 正在刷新 token，返回一個未執行 resolve 的 promise
         return new Promise((resolve) => {
+          console.log('還會出現嗎')
           // 將 resolve 放進隊列，用一个函數形式來保存，等 token 刷新後直接執行
           requests.push((token: string) => {
             config.headers = {

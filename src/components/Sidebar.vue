@@ -11,7 +11,7 @@ import { sideBarData } from '../util/sideBarData'
 
 const route = useRoute()
 const router = useRouter()
-const { adminUser, permissionList } = storeToRefs(useAdminUserStore())
+const adminUserInfo = storeToRefs(useAdminUserStore())
 
 const { isOpen } = useSidebar()
 const isShowAccountList = ref(false)
@@ -30,7 +30,7 @@ watch(routePath, () => {
     isShowAccountList.value = true
 })
 
-function findCommonObjects(a: typeof sideBarData, b: typeof permissionList.value) {
+function findCommonObjects(a: typeof sideBarData, b: typeof adminUserInfo.permission_list.value) {
   const result = []
 
   for (const objA of a) {
@@ -42,7 +42,7 @@ function findCommonObjects(a: typeof sideBarData, b: typeof permissionList.value
   return result
 }
 
-const sideBarList = computed(() => findCommonObjects(sideBarData, permissionList.value))
+const sideBarList = computed(() => findCommonObjects(sideBarData, adminUserInfo.permission_list.value))
 
 function logout() {
   removeLoginCookies([AuthToken, RefreshToken])
@@ -371,11 +371,11 @@ export default {
           <span class="mx-4">Blank</span>
         </router-link>
       </nav>
-      <div class="flex justify-between items-center px-6 py-4 sticky bottom-0 left-0 w-full bg-gray-700 z-50 text-white font-medium">
-        <span class="text-xl">{{ adminUser.account }}</span>
-        <button type="button" class="w-10 h-10 border-2 border-white rounded-full" @click.prevent="logout">
-          <i class="fa-solid fa-arrow-right-from-bracket" />
-        </button>
+      <div class="flex justify-between items-center px-6 py-4 sticky bottom-0 left-0 w-full z-50 font-medium bg-gray-700">
+        <span class="text-xl text-white">{{ adminUserInfo.account.value }}</span>
+        <el-button class="w-10 h-10 text-primary" circle @click.prevent="logout">
+          <font-awesome-icon :icon="['fas', 'arrow-right-from-bracket']" size="lg" fixed-width />
+        </el-button>
       </div>
     </div>
   </div>

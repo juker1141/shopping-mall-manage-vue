@@ -111,6 +111,4 @@ async function login() {
       </form>
     </div>
   </div>
-</template>../util/cookie/cookie
-../api/adminUserHandler
-../../api/manager/adminUserHandler../../api/manager/adminUserHandler
+</template>

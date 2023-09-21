@@ -5,7 +5,9 @@ import vue from '@vitejs/plugin-vue'
 function config({ mode }) {
   return defineConfig({
     base: loadEnv(mode, process.cwd()).VITE_BASE,
-    plugins: [vue()],
+    plugins: [
+      vue(),
+    ],
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAdminUserStore } from '../stores/AdminUserStore'
-import { getAdminUserInfo } from '../api/manager/adminUserHandler'
-import { AuthToken, getCookie } from '../util/cookie'
-import Sidebar from './Sidebar.vue'
-import Header from './Header.vue'
+import { ElMessage } from 'element-plus'
+import Sidebar from '@/components/Sidebar.vue'
+import Header from '@/components/Header.vue'
+import { useAdminUserStore } from '@/stores/AdminUserStore'
+import { AuthToken, getCookie } from '@/util/cookie'
+import { getAdminUserInfo } from '@/api/manager/adminUserHandler'
+import { getErrorMessage } from '@/api/axios'
 
 const router = useRouter()
 const adminUserStore = useAdminUserStore()
@@ -15,8 +17,11 @@ async function getUserData() {
     const response = await getAdminUserInfo()
     adminUserStore.updateAdminUserInfo(response)
   }
-  catch (err) {
-    console.error(err)
+  catch (err: any) {
+    ElMessage({
+      message: `取得帳號權限資訊失敗，${getErrorMessage(err)}`,
+      type: 'error',
+    })
   }
 }
 
@@ -39,10 +44,9 @@ onMounted(async () => {
 
       <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
         <div class="container mx-auto px-6 py-8">
-          <slot />
+          <RouterView />
         </div>
       </main>
     </div>
   </div>
 </template>
-../api/manager/adminUserHandler

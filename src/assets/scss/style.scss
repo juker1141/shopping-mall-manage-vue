@@ -1,0 +1,46 @@
+@use './element/style.scss' as *;
+
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900&display=swap');
+@import url('./preflight.scss');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-track{
+  background: #2D3748;
+}
+
+::-webkit-scrollbar-thumb{
+  background: #CBD5E0;
+}
+
+::-webkit-scrollbar-thumb:hover{
+  background: #718096;
+}
+
+.el-input__inner {
+  padding: 0;
+}
+
+[type='text']:focus, [type='email']:focus, [type='url']:focus, [type='password']:focus, [type='number']:focus, [type='date']:focus, [type='datetime-local']:focus, [type='month']:focus, [type='search']:focus, [type='tel']:focus, [type='time']:focus, [type='week']:focus, [multiple]:focus, textarea:focus, select:focus{
+  --tw-ring-shadow: none !important;
+}
+
+button.el-button.el-button--primary {
+  background-color: #4f46e5;
+  color: white !important;
+  border: none;
+  &:hover {
+    opacity: 0.9;
+  }
+  &.is-link {
+    color: #4f46e5!important;
+    background-color: transparent;
+  }
+}

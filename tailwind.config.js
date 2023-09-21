@@ -1,6 +1,9 @@
 const defaultTheme = require('tailwindcss/defaultTheme')
 
 module.exports = {
+  corePlugins: {
+    preflight: false,
+  },
   mode: 'jit',
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
@@ -10,6 +13,9 @@ module.exports = {
       },
       transitionProperty: {
         height: 'height',
+      },
+      colors: {
+        primary: '#4f46e5',
       },
     },
   },

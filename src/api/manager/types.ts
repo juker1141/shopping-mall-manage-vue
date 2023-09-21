@@ -34,8 +34,11 @@ export interface LoginResponse {
   permission_list: Permission[]
 }
 
-export interface AdminUserInfoResponse {
-  admin_user: AdminUser
+export interface AdminUserResponse extends AdminUser {
+  role_list: Role[]
+}
+
+export interface AdminUserInfo extends AdminUser {
   permission_list: Permission[]
 }
 
@@ -51,4 +54,14 @@ export interface RoleResponse extends Role {
 export interface GetRolesResponse {
   count: number
   data: RoleResponse[]
+}
+
+export interface RoleForm {
+  name: string
+  permissions_id: number[]
+}
+
+export interface GetAdminUsersResponse {
+  count: number
+  data: AdminUserResponse[]
 }

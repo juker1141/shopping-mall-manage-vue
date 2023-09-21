@@ -8,13 +8,12 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // Base
+import ElementPlus from 'element-plus'
+import zhLocale from 'element-plus/dist/locale/zh-tw.mjs'
 import App from './App.vue'
 import router from './router'
-import './assets/main.css'
-
-// Layout
-import DashboardLayout from './components/DashboardLayout.vue'
-import EmptyLayout from './components/EmptyLayout.vue'
+import 'element-plus/dist/index.css'
+import '@/assets/scss/style.scss'
 
 library.add(fab, fas)
 
@@ -22,9 +21,8 @@ const pinia = createPinia()
 const app = createApp(App)
 
 app.component('FontAwesomeIcon', FontAwesomeIcon)
-app.component('DefaultLayout', DashboardLayout)
-app.component('EmptyLayout', EmptyLayout)
 
+app.use(ElementPlus, { locale: zhLocale })
 app.use(pinia)
 app.use(router)
 app.mount('#app')
