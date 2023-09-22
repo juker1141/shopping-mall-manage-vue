@@ -5,7 +5,7 @@ import { ElMessage } from 'element-plus'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { getErrorMessage } from '@/api/axios'
 import type { AdminUserResponse } from '@/api/manager/types'
-import { getAdminUsers } from '@/api/manager/adminUserHandler'
+import { getAdminUsers, updateAdminUserStatus } from '@/api/manager/adminUserHandler'
 import { formatDateTime } from '@/util/time'
 
 const router = useRouter()
@@ -14,6 +14,9 @@ const load = ref(false)
 const tableData = ref<AdminUserResponse[]>([])
 const dataTotal = ref(0)
 const currentPage = ref(1)
+
+const switchInActive = 0
+const switchActive = 1
 
 async function getDatas(page = 1) {
   try {
@@ -26,6 +29,27 @@ async function getDatas(page = 1) {
     ElMessage({
       message: getErrorMessage(err),
       type: 'error',
+    })
+  }
+  finally {
+    load.value = false
+  }
+}
+
+async function switchStatus({ status, id }: AdminUserResponse) {
+  try {
+    load.value = true
+    await updateAdminUserStatus(status, id)
+    await getDatas(currentPage.value)
+    ElMessage({
+      message: '更改帳號狀態成功',
+      type: 'success',
+    })
+  }
+  catch (err: any) {
+    ElMessage({
+      message: '更改帳號狀態失敗',
+      type: 'success',
     })
   }
   finally {
@@ -62,26 +86,22 @@ onMounted(async () => {
 
 <template>
   <el-row justify="end" class="mb-4">
-    <el-button type="primary" size="large" aria-label="Create" class="rounded-lg" @click="$router.push({ name: 'RoleAdd' })">
+    <el-button type="primary" size="large" aria-label="Create" class="rounded-lg" @click="$router.push({ name: 'AccountAdd' })">
       <FontAwesomeIcon :icon="['fas', 'user-plus']" class="mr-2" size="lg" /> <span>新增帳號</span>
     </el-button>
   </el-row>
   <el-row v-loading="load">
     <el-table :data="tableData" stripe :indent="20" size="large" class="rounded-lg">
-      <!-- id: number
-  account: string
-  full_name: string
-  status: 0 | 1
-  password_changed_at: string
-  created_at: string -->
-      <el-table-column prop="id" label="" />
-      <el-table-column prop="full_name" label="名稱" />
-      <el-table-column prop="permission_list" label="權限">
+      <el-table-column prop="full_name" label="姓名" />
+      <el-table-column prop="account" label="帳號" />
+      <el-table-column label="角色">
         <template #default="scope">
-          <span v-for="(p, pIndex) in scope.row.permission_list" :key="p.name">
-            {{ p.name }}
-            <span v-if="pIndex !== scope.row.permission_list.length - 1">、</span>
-          </span>
+          {{ scope.row.role.name }}
+        </template>
+      </el-table-column>
+      <el-table-column label="狀態" width="100">
+        <template #default="scope">
+          <el-switch v-model="scope.row.status" :inactive-value="switchInActive" :active-value="switchActive" @change="switchStatus(scope.row)" />
         </template>
       </el-table-column>
       <el-table-column prop="created_at" label="建立日期" width="200">
@@ -94,8 +114,8 @@ onMounted(async () => {
           <el-button type="primary" link aria-label="Edit" @click.prevent="editData(scope.row.id)">
             <FontAwesomeIcon :icon="['fas', 'pen']" size="lg" />
           </el-button>
-          <el-button type="primary" link aria-label="Edit" @click.prevent="deleteData(scope.row.id)">
-            <FontAwesomeIcon :icon="['fas', 'user-slash']" size="lg" />
+          <el-button type="primary" link aria-label="Delete" @click.prevent="deleteData(scope.row.id)">
+            <FontAwesomeIcon :icon="['fas', 'trash']" size="lg" />
           </el-button>
         </template>
       </el-table-column>

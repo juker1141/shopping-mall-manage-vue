@@ -1,15 +1,8 @@
 import axios from 'axios'
-import type { CookieKey } from '../util/cookie'
-import { getCookie } from '../util/cookie'
-import { Axios, getAccessToken } from './axios'
-
-interface ApiParams {
-  url: string
-  body?: {
-    params?: any
-    [key: string]: any
-  }
-}
+import type { CookieKey } from '@/util/cookie'
+import { getCookie } from '@/util/cookie'
+import { Axios, getAccessToken } from '@/api/axios'
+import type { ApiParams } from '@/api/types'
 
 export function checkToken(key: CookieKey) {
   const token = getCookie(key)

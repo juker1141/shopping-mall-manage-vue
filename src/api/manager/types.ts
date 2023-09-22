@@ -10,6 +10,7 @@ export interface AdminUser {
   status: 0 | 1
   password_changed_at: string
   created_at: string
+  role_id: number
 }
 
 export interface Role {
@@ -35,7 +36,7 @@ export interface LoginResponse {
 }
 
 export interface AdminUserResponse extends AdminUser {
-  role_list: Role[]
+  role: Role
 }
 
 export interface AdminUserInfo extends AdminUser {
@@ -56,9 +57,24 @@ export interface GetRolesResponse {
   data: RoleResponse[]
 }
 
+export interface GetRolesOptionResponse {
+  roles: Role[]
+}
+
 export interface RoleForm {
   name: string
   permissions_id: number[]
+}
+
+export interface AdminUserForm {
+  account: string
+  full_name: string
+  status: 0 | 1
+  role_id: number
+  password?: string
+  confirmPassword?: string
+  old_password?: string
+  new_password?: string
 }
 
 export interface GetAdminUsersResponse {

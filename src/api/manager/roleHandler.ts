@@ -1,6 +1,6 @@
 import type { AxiosResponse } from 'axios'
 import apiHandler from '../apiHandler'
-import type { GetRolesResponse, RoleForm, RoleResponse } from './types'
+import type { GetRolesOptionResponse, GetRolesResponse, RoleForm, RoleResponse } from './types'
 
 export async function getRoles(page: number, page_size = 10): Promise<GetRolesResponse> {
   const url = `${import.meta.env.VITE_BACKEND_HOST}/roles`
@@ -56,6 +56,19 @@ export async function updateRole(form: RoleForm, id: string): Promise<RoleRespon
   }
 
   const res: AxiosResponse<RoleResponse> = await apiHandler.Patch({
+    url,
+    body,
+  })
+
+  return res.data
+}
+
+export async function getRolesOption(): Promise<GetRolesOptionResponse> {
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/roles/option`
+
+  const body = {}
+
+  const res: AxiosResponse<GetRolesOptionResponse> = await apiHandler.Get({
     url,
     body,
   })

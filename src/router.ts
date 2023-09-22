@@ -74,21 +74,39 @@ const routes: RouteRecordRaw[] = [
         children: [
           {
             path: 'accounts',
-            name: 'AccountsLayout',
+            name: 'AccountLayout',
             component: () => import('./views/Manager/Accounts/Index.vue'),
-            meta: { pageTitle: '帳號管理' },
+            meta: { pageTitle: '帳號列表', type: 'layout' },
             children: [
               {
                 path: '',
-                name: 'AccountsList',
+                name: 'AccountList',
                 component: () => import('./views/Manager/Accounts/Table.vue'),
-                meta: { pageTitle: '帳號列表' },
+                meta: { pageTitle: '帳號列表', type: 'list' },
+              },
+              {
+                path: 'add',
+                name: 'AccountAdd',
+                component: () => import('./views/Manager/Accounts/Form.vue'),
+                meta: { pageTitle: '新增帳號', type: 'add' },
+              },
+              {
+                path: 'edit/:id',
+                name: 'AccountEdit',
+                component: () => import('./views/Manager/Accounts/Form.vue'),
+                meta: { pageTitle: '更改帳號', type: 'edit' },
+              },
+              {
+                path: 'delete/:id',
+                name: 'AccountDelete',
+                component: () => import('./views/Manager/Accounts/Form.vue'),
+                meta: { pageTitle: '刪除帳號', type: 'delete' },
               },
             ],
           },
           {
             path: 'roles',
-            name: 'RolesLayout',
+            name: 'RoleLayout',
             component: () => import('./views/Manager/Roles/Index.vue'),
             meta: { pageTitle: '角色列表', type: 'layout' },
             children: [
@@ -110,12 +128,6 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('./views/Manager/Roles/Form.vue'),
                 meta: { pageTitle: '修改角色', type: 'edit' },
               },
-              // {
-              //   path: 'delete/:id',
-              //   name: 'RoleDelete',
-              //   component: Dashboard,
-              //   meta: { pageTitle: '角色列表刪除' },
-              // },
             ],
           },
         ],

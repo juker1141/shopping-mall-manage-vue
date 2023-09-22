@@ -1,6 +1,7 @@
 import type { AxiosResponse } from 'axios'
-import apiHandler from '../apiHandler'
-import type { AdminUserInfo, AdminUserResponse, GetAdminUsersResponse, LoginFormValue, LoginResponse, RenewAccessTokenResponse } from './types'
+import apiHandler from '@/api/apiHandler'
+import type { ApiDeleteResponse } from '@/api/types'
+import type { AdminUserForm, AdminUserInfo, AdminUserResponse, GetAdminUsersResponse, LoginFormValue, LoginResponse, RenewAccessTokenResponse } from '@/api/manager/types'
 
 export async function loginAdminUser({ account, password }: LoginFormValue): Promise<LoginResponse> {
   const url = `${import.meta.env.VITE_BACKEND_HOST}/login`
@@ -66,6 +67,60 @@ export async function getAdminUser(id: string): Promise<AdminUserResponse> {
   const body = {}
 
   const res: AxiosResponse<AdminUserResponse> = await apiHandler.Get({
+    url,
+    body,
+  })
+  return res.data
+}
+
+export async function createAdminUser(form: AdminUserForm): Promise<AdminUserResponse> {
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager-user`
+
+  const body = {
+    ...form,
+  }
+
+  const res: AxiosResponse<AdminUserResponse> = await apiHandler.Post({
+    url,
+    body,
+  })
+  return res.data
+}
+
+export async function updateAdminUser(form: AdminUserForm, id: string): Promise<AdminUserResponse> {
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager-user/${id}`
+
+  const body = {
+    ...form,
+  }
+
+  const res: AxiosResponse<AdminUserResponse> = await apiHandler.Patch({
+    url,
+    body,
+  })
+  return res.data
+}
+
+export async function updateAdminUserStatus(status: number, id: number): Promise<AdminUserResponse> {
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager-user/${id}`
+
+  const body = {
+    status,
+  }
+
+  const res: AxiosResponse<AdminUserResponse> = await apiHandler.Patch({
+    url,
+    body,
+  })
+  return res.data
+}
+
+export async function deleteAdminUser(id: string): Promise<ApiDeleteResponse> {
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager-user/${id}`
+
+  const body = {}
+
+  const res: AxiosResponse<ApiDeleteResponse> = await apiHandler.Delete({
     url,
     body,
   })
