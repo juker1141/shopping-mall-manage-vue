@@ -66,6 +66,15 @@ const apiHandler = {
     })
     return res
   },
+  FormPatch: async ({ url, body }: ApiParams) => {
+    const res = await Axios.patch(url, body, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': getAccessToken(),
+      },
+    })
+    return res
+  },
   Put: async ({ url, body }: ApiParams) => {
     const res = await Axios.put(url, body, {
       headers: {

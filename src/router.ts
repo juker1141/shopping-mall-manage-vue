@@ -62,9 +62,35 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/members',
-        name: 'Members',
-        component: Forms,
+        name: 'MemberLayout',
+        component: () => import('./views/Members/Index.vue'),
         meta: { pageTitle: '會員管理' },
+        children: [
+          {
+            path: '',
+            name: 'MemberList',
+            component: () => import('./views/Members/Table.vue'),
+            meta: { pageTitle: '會員列表', type: 'list' },
+          },
+          {
+            path: 'add',
+            name: 'MemberAdd',
+            component: () => import('./views/Members/Form.vue'),
+            meta: { pageTitle: '新增會員', type: 'add' },
+          },
+          {
+            path: 'edit/:id',
+            name: 'MemberEdit',
+            component: () => import('./views/Members/Form.vue'),
+            meta: { pageTitle: '更改會員', type: 'edit' },
+          },
+          {
+            path: 'delete/:id',
+            name: 'MemberDelete',
+            component: () => import('./views/Members/Form.vue'),
+            meta: { pageTitle: '刪除會員', type: 'delete' },
+          },
+        ],
       },
       {
         path: '/manager',
