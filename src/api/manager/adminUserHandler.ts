@@ -33,7 +33,7 @@ export async function refreshAccessToken(token: string): Promise<RenewAccessToke
 }
 
 export async function getAdminUserInfo(): Promise<AdminUserInfo> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager-user/info`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager_user/info`
 
   const body = {}
 
@@ -45,7 +45,7 @@ export async function getAdminUserInfo(): Promise<AdminUserInfo> {
 }
 
 export async function getAdminUsers(page: number, page_size = 10): Promise<GetAdminUsersResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager-users`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager_users`
 
   const body = {
     params: {
@@ -62,7 +62,7 @@ export async function getAdminUsers(page: number, page_size = 10): Promise<GetAd
 }
 
 export async function getAdminUser(id: string): Promise<AdminUserResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager-user/${id}`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager_user/${id}`
 
   const body = {}
 
@@ -74,7 +74,7 @@ export async function getAdminUser(id: string): Promise<AdminUserResponse> {
 }
 
 export async function createAdminUser(form: AdminUserForm): Promise<AdminUserResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager-user`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager_user`
 
   const body = {
     ...form,
@@ -88,7 +88,7 @@ export async function createAdminUser(form: AdminUserForm): Promise<AdminUserRes
 }
 
 export async function updateAdminUser(form: AdminUserForm, id: string): Promise<AdminUserResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager-user/${id}`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager_user/${id}`
 
   const body = {
     ...form,
@@ -102,7 +102,7 @@ export async function updateAdminUser(form: AdminUserForm, id: string): Promise<
 }
 
 export async function updateAdminUserStatus(status: number, id: number): Promise<AdminUserResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager-user/${id}`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager_user/${id}`
 
   const body = {
     status,
@@ -116,7 +116,7 @@ export async function updateAdminUserStatus(status: number, id: number): Promise
 }
 
 export async function deleteAdminUser(id: string): Promise<ApiDeleteResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager-user/${id}`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/manager_user/${id}`
 
   const body = {}
 
