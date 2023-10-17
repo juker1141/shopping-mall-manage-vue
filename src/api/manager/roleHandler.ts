@@ -3,7 +3,7 @@ import apiHandler from '../apiHandler'
 import type { GetRolesOptionResponse, GetRolesResponse, RoleForm, RoleResponse } from './types'
 
 export async function getRoles(page: number, page_size = 10): Promise<GetRolesResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/roles`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/admin/roles`
 
   const body = {
     params: {
@@ -21,7 +21,7 @@ export async function getRoles(page: number, page_size = 10): Promise<GetRolesRe
 }
 
 export async function getRole(id: string): Promise<RoleResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/role/${id}`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/admin/role/${id}`
 
   const body = {}
 
@@ -34,7 +34,7 @@ export async function getRole(id: string): Promise<RoleResponse> {
 }
 
 export async function createRole(form: RoleForm): Promise<RoleResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/role`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/admin/role`
 
   const body = {
     ...form,
@@ -49,7 +49,7 @@ export async function createRole(form: RoleForm): Promise<RoleResponse> {
 }
 
 export async function updateRole(form: RoleForm, id: string): Promise<RoleResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/role/${id}`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/admin/role/${id}`
 
   const body = {
     ...form,
@@ -64,7 +64,7 @@ export async function updateRole(form: RoleForm, id: string): Promise<RoleRespon
 }
 
 export async function getRolesOption(): Promise<GetRolesOptionResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/roles/option`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/admin/roles/option`
 
   const body = {}
 

@@ -1,52 +1,41 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormInstance, FormRules, UploadRawFile } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { getErrorMessage } from '@/api/axios'
 import type { ApiActionText } from '@/api/types'
-import { getRolesOption } from '@/api/manager/roleHandler'
-import { createAdminUser, deleteAdminUser, getAdminUser, updateAdminUser } from '@/api/manager/adminUserHandler'
-import type { AdminUserForm, Role } from '@/api/manager/types'
+import { deleteMemberUser, getMemberUser, updateMemberUser } from '@/api/member/memberUserHandler'
+import type { MemberUserForm } from '@/api/member/types'
 import type { routeType } from '@/util/route'
-import { isAddPageType, isDeletePageType, isEditPageType } from '@/util/route'
+import { isDeletePageType, isEditPageType } from '@/util/route'
 
 const router = useRouter()
 const { currentRoute } = router
-const pageType = ref<routeType>('add')
+const BACKEND_HOST = import.meta.env.VITE_BACKEND_HOST
+const pageType = ref<routeType>('edit')
 const type = currentRoute.value.meta.type
 
-const actionText = ref<ApiActionText>('新增')
+const actionText = ref<ApiActionText>('更改')
 const isOpenModal = ref(false)
-const roles = ref<Role[]>([])
 const statusOptions = ref([
   { name: '啟用', value: 1 },
   { name: '不啟用', value: 0 },
 ])
 const formRef = ref<FormInstance>()
-const createForm = reactive<AdminUserForm>({
+const form = reactive<MemberUserForm>({
   account: '',
+  email: '',
   full_name: '',
-  status: 1,
-  password: '',
-  confirmPassword: '',
-  role_id: 0,
-})
-const updateForm = reactive<AdminUserForm>({
-  account: '',
-  full_name: '',
+  cellphone: '',
+  address: '',
+  shipping_address: '',
+  post_code: '',
   status: 1,
   new_password: '',
   old_password: '',
-  role_id: 0,
+  avatar_file: [],
 })
-
-let form: typeof createForm | typeof updateForm
-// 根據不同頁面狀態要有不同的 form
-if (type && isAddPageType(type))
-  form = createForm
-else
-  form = updateForm
 
 function validatorPassword(rules: any, value: any, callback: any) {
   if (rules.required && value.length <= 0)
@@ -59,23 +48,10 @@ function validatorPassword(rules: any, value: any, callback: any) {
     callback()
 }
 
-function validatorConfirmPassword(rules: any, value: any, callback: any) {
-  if (value === '' && rules.required)
-    callback(new Error('密碼確認必填'))
-  else if (value !== form.password)
-    callback(new Error('密碼確認必須與密碼必須一致'))
-  else if (!rules.required && value.length === 0)
-    callback()
-  else if (value.length < 8 || value.length > 16)
-    callback(new Error(' '))
-  else
-    callback()
-}
-
 function validatorNewPassword(rules: any, value: any, callback: any) {
   if (value === '' && rules.required)
     callback(new Error('新密碼必填'))
-  else if (value === form.password)
+  else if (value === form.old_password)
     callback(new Error('請輸入新的密碼'))
   else if (!rules.required && value.length === 0)
     callback()
@@ -85,32 +61,8 @@ function validatorNewPassword(rules: any, value: any, callback: any) {
     callback()
 }
 
-const addRules = ref<FormRules>({
-  account: {
-    required: true,
-    message: '帳號必填',
-  },
-  full_name: {
-    required: true, message: '姓名必填',
-  },
+const rules = ref<FormRules>({
   status: { required: true, type: 'integer', message: '狀態必填' },
-  role_id: { required: true, type: 'integer', message: '角色必填' },
-  password: {
-    required: true,
-    min: 8,
-    max: 16,
-    validator: validatorPassword,
-  },
-  confirmPassword: {
-    required: true,
-    min: 8,
-    max: 16,
-    validator: validatorConfirmPassword,
-  },
-})
-const editRules = ref<FormRules>({
-  status: { required: true, type: 'integer', message: '狀態必填' },
-  roleList: { required: true, type: 'array', message: '角色必填' },
   name: { required: true, message: '姓名必填' },
   password: {
     required: false,
@@ -126,29 +78,49 @@ const editRules = ref<FormRules>({
   },
 })
 
-async function getRolesOptionData() {
-  try {
-    const response = await getRolesOption()
-    roles.value = response.roles
-  }
-  catch (err: any) {
-    console.error(err)
+// 處理會員圖片上傳
+const uploadImageUrl = ref('')
+const defaultAvatarUrl = ref(`${BACKEND_HOST}/static/avatar_images/default_avatar.png`)
+
+function handleExceedImage(files: any) {
+  const file = files[0] as UploadRawFile
+  form.avatar_file[0] = file
+  uploadImageUrl.value = URL.createObjectURL(file)
+}
+
+function uploadImageHandler(file: any, files: any) {
+  if (file.raw.size / 1024 / 1024 > 5) {
     ElMessage({
-      message: `取得角色資訊失敗，${getErrorMessage(err)}`,
+      message: '圖片必須小於 5 MB',
       type: 'error',
     })
   }
+  else {
+    files[0] = file.raw
+    uploadImageUrl.value = URL.createObjectURL(file.raw)
+  }
 }
 
-async function getAdminUserData() {
+function removeUploadImage() {
+  form.avatar_file = []
+  uploadImageUrl.value = ''
+}
+
+async function getMemberUserData() {
   try {
     const id: string = currentRoute.value.params.id as string
-    const response = await getAdminUser(id)
+    const response = await getMemberUser(id)
 
     form.account = response.account
     form.full_name = response.full_name
     form.status = response.status
-    form.role_id = response.role_id
+    form.email = response.email
+    form.cellphone = response.cellphone
+    form.address = response.address
+    form.shipping_address = response.shipping_address
+    form.post_code = response.post_code
+    if (!response.avatar_url.includes('default_avatar.png'))
+      uploadImageUrl.value = `${BACKEND_HOST}/${response.avatar_url}`
   }
   catch (err: any) {
     ElMessage({
@@ -159,17 +131,16 @@ async function getAdminUserData() {
 }
 
 onMounted(async () => {
-  await getRolesOptionData()
   if (type) {
     pageType.value = type
     switch (true) {
       case isEditPageType(type):
         actionText.value = '更改'
-        await getAdminUserData()
+        await getMemberUserData()
         break
       case isDeletePageType(type):
         actionText.value = '刪除'
-        await getAdminUserData()
+        await getMemberUserData()
         break
       default:
         break
@@ -178,24 +149,19 @@ onMounted(async () => {
 })
 
 async function onSubmit() {
-  let actionMethods = () => createAdminUser(form)
-  if (isEditPageType(pageType.value)) {
-    const id: string = currentRoute.value.params.id as string
-    actionMethods = () => updateAdminUser(form, id)
-  }
-
   try {
-    await actionMethods()
+    const id: string = currentRoute.value.params.id as string
+    await updateMemberUser(form, id)
 
     ElMessage({
-      message: `${actionText.value}帳號成功`,
+      message: `${actionText.value}會員帳號成功`,
       type: 'success',
     })
-    router.push({ name: 'AccountList' })
+    router.push({ name: 'MemberList' })
   }
   catch (err: any) {
     ElMessage({
-      message: `${actionText.value}帳號失敗，${getErrorMessage(err)}`,
+      message: `${actionText.value}會員帳號失敗，${getErrorMessage(err)}`,
       type: 'error',
     })
   }
@@ -204,17 +170,17 @@ async function onSubmit() {
 async function deleteSubmit() {
   try {
     const id: string = currentRoute.value.params.id as string
-    await deleteAdminUser(id)
+    await deleteMemberUser(id)
 
     ElMessage({
-      message: `${actionText.value}帳號成功`,
+      message: `${actionText.value}會員帳號成功`,
       type: 'success',
     })
-    router.push({ name: 'AccountList' })
+    router.push({ name: 'MemberList' })
   }
   catch (err: any) {
     ElMessage({
-      message: `${actionText.value}帳號失敗，${getErrorMessage(err)}`,
+      message: `${actionText.value}會員帳號失敗，${getErrorMessage(err)}`,
       type: 'error',
     })
   }
@@ -225,7 +191,7 @@ async function deleteSubmit() {
   <div class="mt-8">
     <el-form
       ref="formRef"
-      class="mt-4" :rules="isAddPageType(pageType) ? addRules : editRules"
+      class="mt-4" :rules="rules"
       :model="form"
       size="default"
       label-position="top" :scroll-to-error="true"
@@ -236,8 +202,47 @@ async function deleteSubmit() {
         </h2>
         <el-row class="p-6 pb-0">
           <el-col>
-            <el-row>
-              <el-col>
+            <el-row :gutter="20">
+              <el-col :span="12">
+                <el-form-item label="頭像" prop="avatar_file">
+                  <div class="w-36 h-36 relative rounded-full shadow">
+                    <div v-if="uploadImageUrl">
+                      <div v-if="uploadImageUrl" class="w-36 h-36 bg-center bg-no-repeat bg-cover rounded-full" :style="{ backgroundImage: `url(${uploadImageUrl})` }" />
+                      <el-button class="absolute top-0 left-0 w-36 h-36 flex items-center justify-center opacity-0 hover:opacity-100 hover:bg-white/90 rounded-full" @click.prevent="removeUploadImage">
+                        <FontAwesomeIcon :icon="['fas', 'trash']" size="2xl" class="text-primary" />
+                      </el-button>
+                    </div>
+                    <img v-else :src="defaultAvatarUrl" alt="default" class="rounded-full">
+
+                    <el-upload
+                      v-model:file-list="form.avatar_file"
+                      action="none"
+                      accept="image/*"
+                      class="absolute bottom-2 right-2 border bg-white w-8 h-8 flex justify-center items-center rounded-full"
+                      :show-file-list="false"
+                      :limit="1"
+                      :auto-upload="false"
+                      :on-exceed="handleExceedImage"
+                      :on-change="uploadImageHandler"
+                      :disabled="isDeletePageType(pageType)"
+                    >
+                      <!-- :before-remove="showDeleteModal" -->
+                      <FontAwesomeIcon :icon="['fas', 'camera']" size="lg" />
+                    </el-upload>
+                  </div>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="帳號" prop="account">
+                  <el-input v-model="form.account" placeholder="請輸入帳號" size="large" :disabled="true" />
+                </el-form-item>
+                <el-form-item label="信箱" prop="email">
+                  <el-input v-model="form.email" placeholder="請輸入信箱" size="large" :disabled="isEditPageType(pageType) || isDeletePageType(pageType)" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row :gutter="20">
+              <el-col :span="12">
                 <el-form-item label="狀態" prop="status">
                   <el-select
                     v-model="form.status" class="w-full" size="large" placeholder="請選擇狀態"
@@ -247,8 +252,6 @@ async function deleteSubmit() {
                   </el-select>
                 </el-form-item>
               </el-col>
-            </el-row>
-            <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="姓名" prop="full_name">
                   <el-input v-model="form.full_name" placeholder="請輸入姓名" size="large" :disabled="isDeletePageType(pageType)" />
@@ -257,37 +260,8 @@ async function deleteSubmit() {
                   </span>
                 </el-form-item>
               </el-col>
-              <el-col :span="12">
-                <el-form-item label="帳號" prop="account">
-                  <el-input v-model="form.account" placeholder="請輸入帳號" size="large" :disabled="isEditPageType(pageType) || isDeletePageType(pageType)" />
-                </el-form-item>
-              </el-col>
             </el-row>
-            <el-row v-if="isAddPageType(pageType)" :gutter="20">
-              <el-col :span="12">
-                <el-form-item label="密碼" prop="password" required>
-                  <el-input
-                    v-model="form.password" size="large" show-password maxlength="16" minlength="8"
-                    placeholder="請輸入密碼" autocomplete="off"
-                  />
-                  <span class="text-danger text-xs pt-2 block pl-1">
-                    密碼需8到16個字
-                  </span>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="密碼確認" prop="confirmPassword" required>
-                  <el-input
-                    v-model="form.confirmPassword" size="large" maxlength="16" minlength="8" show-password
-                    autocomplete="off" placeholder="請確認密碼"
-                  />
-                  <span class="text-danger text-xs pt-2 block pl-1">
-                    密碼需8到16個字
-                  </span>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row v-if="isEditPageType(pageType)" :gutter="20">
+            <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="舊密碼" prop="old_password">
                   <el-input
@@ -317,6 +291,40 @@ async function deleteSubmit() {
 
       <div class="bg-white rounded-md shadow-md mb-6">
         <h2 class="text-lg font-semibold text-gray-700 capitalize px-6 py-4 border-b border-gray-200">
+          會員資料
+        </h2>
+        <el-row class="p-6 pb-0">
+          <el-col>
+            <el-row :gutter="20">
+              <el-col :span="12">
+                <el-form-item label="手機" prop="cellphone">
+                  <el-input v-model="form.cellphone" placeholder="請輸入手機電話" size="large" :disabled="isDeletePageType(pageType)" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="郵遞區號" prop="post_code">
+                  <el-input v-model="form.post_code" placeholder="請輸入郵遞區號" size="large" :disabled="isDeletePageType(pageType)" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row :gutter="20">
+              <el-col :span="12">
+                <el-form-item label="地址" prop="address">
+                  <el-input v-model="form.address" placeholder="請輸入地址" size="large" :disabled="isDeletePageType(pageType)" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="寄送地址" prop="shipping_address">
+                  <el-input v-model="form.shipping_address" placeholder="請輸入寄送地址" size="large" :disabled="isDeletePageType(pageType)" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-col>
+        </el-row>
+      </div>
+
+      <!-- <div class="bg-white rounded-md shadow-md mb-6">
+        <h2 class="text-lg font-semibold text-gray-700 capitalize px-6 py-4 border-b border-gray-200">
           角色設定
         </h2>
 
@@ -334,7 +342,7 @@ async function deleteSubmit() {
             </el-form-item>
           </el-col>
         </el-row>
-      </div>
+      </div> -->
 
       <div class="flex justify-center mt-4">
         <el-form-item>

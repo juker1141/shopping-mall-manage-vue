@@ -81,7 +81,6 @@ Axios.interceptors.response.use(
       else {
         // 正在刷新 token，返回一個未執行 resolve 的 promise
         return new Promise((resolve) => {
-          console.log('還會出現嗎')
           // 將 resolve 放進隊列，用一个函數形式來保存，等 token 刷新後直接執行
           requests.push((token: string) => {
             config.headers = {

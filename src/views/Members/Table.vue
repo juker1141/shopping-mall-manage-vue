@@ -1,16 +1,15 @@
-
-import { Row } from 'element-plus/es/components/table-v2/src/components';
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { getErrorMessage } from '@/api/axios'
-import type { MemberUserResponse } from '@/api/manager/types'
-import { getMemberUsers, updateMemberUserStatus } from '@/api/member/memberUserHandler.ts'
+import type { MemberUserResponse } from '@/api/member/types'
+import { getMemberUsers, updateMemberUserStatus } from '@/api/member/memberUserHandler'
 import { formatDateTime } from '@/util/time'
 
 const router = useRouter()
+const BACKEND_HOST = import.meta.env.VITE_BACKEND_HOST
 
 const load = ref(false)
 const tableData = ref<MemberUserResponse[]>([])
@@ -44,13 +43,13 @@ async function switchStatus({ status, id }: MemberUserResponse) {
     await updateMemberUserStatus(status, id)
     await getDatas(currentPage.value)
     ElMessage({
-      message: '更改帳號狀態成功',
+      message: '更改會員狀態成功',
       type: 'success',
     })
   }
   catch (err: any) {
     ElMessage({
-      message: '更改帳號狀態失敗',
+      message: '更改會員狀態失敗',
       type: 'success',
     })
   }
@@ -89,15 +88,24 @@ onMounted(async () => {
 <template>
   <el-row v-loading="load">
     <el-table :data="tableData" stripe :indent="20" size="large" class="rounded-lg">
-      <el-table-column label="狀態" width="100">
+      <el-table-column label="姓名">
         <template #default="scope">
-          <el-avatar :size="50" :src="scope.row.avatar_url" />
+          <div class="flex items-center">
+            <el-avatar :size="50" :src="`${BACKEND_HOST}/${scope.row.avatar_url}`" />
+            <div class="ml-4">
+              <div class="text-sm font-medium leading-5 text-gray-900">
+                {{ scope.row.full_name }}
+              </div>
+              <div class="text-sm leading-5 text-gray-500">
+                {{ scope.row.email }}
+              </div>
+            </div>
+          </div>
         </template>
       </el-table-column>
-      <el-table-column prop="full_name" label="姓名" />
       <el-table-column prop="account" label="帳號" />
-      <el-table-column prop="email" label="帳號" />
-      <el-table-column prop="cellphone" label="帳號" />
+      <el-table-column prop="cellphone" label="手機" />
+      <el-table-column prop="address" label="地址" />
       <el-table-column label="狀態" width="100">
         <template #default="scope">
           <el-switch v-model="scope.row.status" :inactive-value="switchInActive" :active-value="switchActive" @change="switchStatus(scope.row)" />

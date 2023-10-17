@@ -73,12 +73,6 @@ const routes: RouteRecordRaw[] = [
             meta: { pageTitle: '會員列表', type: 'list' },
           },
           {
-            path: 'add',
-            name: 'MemberAdd',
-            component: () => import('./views/Members/Form.vue'),
-            meta: { pageTitle: '新增會員', type: 'add' },
-          },
-          {
             path: 'edit/:id',
             name: 'MemberEdit',
             component: () => import('./views/Members/Form.vue'),

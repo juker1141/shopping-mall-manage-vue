@@ -2,12 +2,12 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { storeToRefs } from 'pinia'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { getErrorMessage } from '@/api/axios'
 import type { AdminUserResponse } from '@/api/manager/types'
 import { getAdminUsers, updateAdminUserStatus } from '@/api/manager/adminUserHandler'
 import { formatDateTime } from '@/util/time'
-import { storeToRefs } from 'pinia'
 import { useAdminUserStore } from '@/stores/AdminUserStore'
 
 const router = useRouter()
@@ -86,8 +86,9 @@ onMounted(async () => {
   await getDatas()
 })
 
-function isCurrentAccount (id: number) :boolean {
-  if (adminUserInfo.id.value === id) return true
+function isCurrentAccount(id: number): boolean {
+  if (adminUserInfo.id.value === id)
+    return true
   return false
 }
 </script>

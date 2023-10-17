@@ -15,8 +15,9 @@ export interface MemberUserResponse {
   created_at: string
 }
 
-
 export interface MemberUserForm {
+  account: string
+  email: string
   full_name: string
   cellphone: string
   address: string
@@ -25,7 +26,8 @@ export interface MemberUserForm {
   status: 0 | 1
   old_password?: string
   new_password?: string
-  avatar_file: File
+  avatar_file: any[]
+  [key: string]: any
 }
 
 export interface GetMemberUsersResponse {

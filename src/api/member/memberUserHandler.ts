@@ -1,11 +1,10 @@
 import type { AxiosResponse } from 'axios'
 import apiHandler from '@/api/apiHandler'
 import type { ApiDeleteResponse } from '@/api/types'
-import type { GetMemberUsersResponse, MemberUserResponse, MemberUserForm } from '@/api/member/types'
-
+import type { GetMemberUsersResponse, MemberUserForm, MemberUserResponse } from '@/api/member/types'
 
 export async function getMemberUsers(page: number, page_size = 10): Promise<GetMemberUsersResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/member_users`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/admin/member_users`
 
   const body = {
     params: {
@@ -22,7 +21,7 @@ export async function getMemberUsers(page: number, page_size = 10): Promise<GetM
 }
 
 export async function getMemberUser(id: string): Promise<MemberUserResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/member_user/${id}`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/admin/member_user/${id}`
 
   const body = {}
 
@@ -34,11 +33,18 @@ export async function getMemberUser(id: string): Promise<MemberUserResponse> {
 }
 
 export async function updateMemberUser(form: MemberUserForm, id: string): Promise<MemberUserResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/member_user/${id}`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/admin/member_user/${id}`
 
-  const body = {
-    ...form,
-  }
+  const body = new FormData()
+
+  Object.keys(form).forEach((key) => {
+    console.log(form[key])
+    if (key === 'avatar_file' && form[key].length > 0)
+      body.append(key, form[key][0])
+
+    else if (form[key].length > 0)
+      body.append(key, form[key])
+  })
 
   const res: AxiosResponse<MemberUserResponse> = await apiHandler.FormPatch({
     url,
@@ -48,7 +54,7 @@ export async function updateMemberUser(form: MemberUserForm, id: string): Promis
 }
 
 export async function updateMemberUserStatus(status: number, id: number): Promise<MemberUserResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/member_user/${id}`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/admin/member_user/${id}`
 
   const body = {
     status,
@@ -62,7 +68,7 @@ export async function updateMemberUserStatus(status: number, id: number): Promis
 }
 
 export async function deleteMemberUser(id: string): Promise<ApiDeleteResponse> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/member_user/${id}`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/admin/member_user/${id}`
 
   const body = {}
 

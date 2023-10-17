@@ -3,7 +3,7 @@ import apiHandler from '../apiHandler'
 import type { Permission } from './types'
 
 export async function getPermissions(page = 1, page_size = 10): Promise<Permission[]> {
-  const url = `${import.meta.env.VITE_BACKEND_HOST}/permissions`
+  const url = `${import.meta.env.VITE_BACKEND_HOST}/admin/permissions`
 
   const body = {
     params: {
