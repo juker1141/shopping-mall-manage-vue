@@ -44,9 +44,35 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/products',
-        name: 'Products',
-        component: Forms,
+        name: 'ProductsLayout',
+        component: () => import('./views/Products/Index.vue'),
         meta: { pageTitle: '商品管理' },
+        children: [
+          {
+            path: '',
+            name: 'ProductList',
+            component: () => import('./views/Products/Table.vue'),
+            meta: { pageTitle: '商品列表', type: 'list' },
+          },
+          {
+            path: 'add',
+            name: 'ProductAdd',
+            component: () => import('./views/Products/Form.vue'),
+            meta: { pageTitle: '新增商品', type: 'add' },
+          },
+          {
+            path: 'edit/:id',
+            name: 'ProductEdit',
+            component: () => import('./views/Products/Form.vue'),
+            meta: { pageTitle: '更改商品', type: 'edit' },
+          },
+          {
+            path: 'delete/:id',
+            name: 'ProductDelete',
+            component: () => import('./views/Products/Form.vue'),
+            meta: { pageTitle: '刪除商品', type: 'delete' },
+          },
+        ],
       },
       {
         path: '/orders',
