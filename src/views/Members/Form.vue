@@ -213,7 +213,6 @@ async function deleteSubmit() {
                       </el-button>
                     </div>
                     <img v-else :src="defaultAvatarUrl" alt="default" class="rounded-full">
-
                     <el-upload
                       v-model:file-list="form.avatar_file"
                       action="none"

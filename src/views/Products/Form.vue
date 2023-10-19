@@ -33,6 +33,7 @@ const createForm = reactive<ProductForm>({
   content: '',
   status: 1,
   image_file: [],
+  image_url: '',
   images_url: [],
 })
 const updateForm = reactive<ProductForm>({
@@ -45,6 +46,7 @@ const updateForm = reactive<ProductForm>({
   content: '',
   status: 1,
   image_file: [],
+  image_url: '',
   images_url: [],
 })
 
@@ -55,6 +57,17 @@ if (type && isAddPageType(type))
 else
   form = updateForm
 
+const MaxLengthImagesUrl = ref(5)
+
+const uploadImageUrl = ref('')
+
+function validateImageFile(rules: any, value: any, callback: any) {
+  if (rules.required && value.length <= 0)
+    callback(new Error('商品封面圖片必填'))
+
+  else callback()
+}
+
 const addRules = ref<FormRules>({
   title: {
     required: true,
@@ -63,8 +76,8 @@ const addRules = ref<FormRules>({
   category: {
     required: true, message: '類別必填',
   },
-  price: { required: true, type: 'integer', message: '商品售價必填' },
-  origin_price: { required: true, type: 'integer', message: '商品原價必填' },
+  price: { required: true, type: 'number', message: '商品售價必填' },
+  origin_price: { required: true, type: 'number', message: '商品原價必填' },
   unit: {
     required: true, message: '商品單位必填',
   },
@@ -76,37 +89,35 @@ const addRules = ref<FormRules>({
   },
   status: { required: true, type: 'integer', message: '商品是否啟用必填' },
   image_file: {
-    required: true, message: '商品封面圖片必填',
+    required: true, message: '商品封面圖片必填', validator: validateImageFile,
   },
 })
 const editRules = ref<FormRules>({
   title: {
-    required: true,
+    required: false,
     message: '商品名稱必填',
   },
   category: {
-    required: true, message: '類別必填',
+    required: false, message: '類別必填',
   },
-  price: { required: true, type: 'integer', message: '商品售價必填' },
-  origin_price: { required: true, type: 'integer', message: '商品原價必填' },
+  price: { required: false, type: 'number', message: '商品售價必填' },
+  origin_price: { required: false, type: 'number', message: '商品原價必填' },
   unit: {
-    required: true, message: '商品單位必填',
+    required: false, message: '商品單位必填',
   },
   content: {
-    required: true, message: '商品內容必填',
+    required: false, message: '商品內容必填',
   },
   description: {
-    required: true, message: '商品描述必填',
+    required: false, message: '商品描述必填',
   },
   status: { required: true, type: 'integer', message: '商品是否啟用必填' },
   image_file: {
-    required: true, message: '商品封面圖片必填',
+    required: false, validator: validateImageFile,
   },
 })
 
 // 處理會員圖片上傳
-const uploadImageUrl = ref('')
-
 function handleExceedImage(files: any) {
   const file = files[0] as UploadRawFile
   form.image_file[0] = file
@@ -144,7 +155,11 @@ async function getAdminUserData() {
     form.description = response.description
     form.content = response.content
     form.status = response.status
-    form.image_url = response.image_url
+    if (response.image_url) {
+      uploadImageUrl.value = `${BACKEND_HOST}/${response.image_url}`
+      form.image_url = response.image_url
+    }
+
     form.images_url = response.images_url
   }
   catch (err: any) {
@@ -190,6 +205,7 @@ async function onSubmit() {
     router.push({ name: 'ProductList' })
   }
   catch (err: any) {
+    console.log(err)
     ElMessage({
       message: `${actionText.value}商品失敗，${getErrorMessage(err)}`,
       type: 'error',
@@ -240,7 +256,8 @@ async function deleteSubmit() {
                     v-model:file-list="form.image_file"
                     action="none"
                     accept="image/*"
-                    class="w-64 h-64 bg-gray-200 rounded flex items-center justify-center shadow"
+                    class="w-64 h-64 rounded flex items-center justify-center border-2 border-dashed border-gray-300"
+                    :class="{ 'hover:border-primary': !isDeletePageType(pageType) }"
                     :show-file-list="false"
                     :limit="1"
                     :auto-upload="false"
@@ -267,10 +284,7 @@ async function deleteSubmit() {
               </el-col>
               <el-col :span="18">
                 <el-form-item label="其他圖片" prop="images_url">
-                  <el-input v-model="form.images_url" class="mb-[18px]" placeholder="請輸入其他圖片網址" size="large" :disabled=" isDeletePageType(pageType)" />
-                  <el-input v-model="form.images_url" class="mb-[18px]" placeholder="請輸入其他圖片網址" size="large" :disabled=" isDeletePageType(pageType)" />
-                  <el-input v-model="form.images_url" class="mb-[18px]" placeholder="請輸入其他圖片網址" size="large" :disabled=" isDeletePageType(pageType)" />
-                  <el-input v-model="form.images_url" placeholder="請輸入其他圖片網址" size="large" :disabled=" isDeletePageType(pageType)" />
+                  <el-input v-for="i in MaxLengthImagesUrl" :key="i" v-model="form.images_url[i]" class="mb-4" placeholder="請輸入其他圖片網址" size="large" :disabled=" isDeletePageType(pageType)" />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -322,13 +336,25 @@ async function deleteSubmit() {
             </el-row>
             <el-row :gutter="20">
               <el-col :span="12">
+                <el-form-item label="商品單位" prop="unit">
+                  <el-input v-model="form.unit" placeholder="請輸入商品單位" size="large" :disabled="isDeletePageType(pageType)" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row :gutter="20" class="mb-4">
+              <el-col :span="12">
                 <el-form-item label="商品原價" prop="origin_price">
-                  <el-input v-model="form.origin_price" placeholder="請輸入商品原價" size="large" :disabled=" isDeletePageType(pageType)" />
+                  <el-input
+                    v-model.number="form.origin_price"
+                    type="number" placeholder="請輸入商品原價" size="large" :disabled=" isDeletePageType(pageType)"
+                  />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="商品售價" prop="price">
-                  <el-input v-model="form.price" placeholder="請輸入商品售價" size="large" :disabled="isDeletePageType(pageType)" />
+                  <el-input
+                    v-model.number="form.price" type="number" placeholder="請輸入商品售價" size="large" :disabled="isDeletePageType(pageType)"
+                  />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -342,7 +368,7 @@ async function deleteSubmit() {
             class="shadow"
             aria-label="Cancel"
             size="large" @click.prevent="
-              $router.push({ name: 'AccountList' })"
+              $router.push({ name: 'ProductList' })"
           >
             取消
           </el-button>

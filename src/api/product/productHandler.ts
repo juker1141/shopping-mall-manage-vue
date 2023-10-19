@@ -38,13 +38,21 @@ export async function createProduct(form: ProductForm): Promise<ProductResponse>
   const body = new FormData()
 
   Object.keys(form).forEach((key) => {
-    console.log(form[key])
-    if (key === 'image_url' && form[key].length > 0)
+    console.log(form[key], key)
+    if (key === 'image_file' && form[key].length > 0) {
       body.append(key, form[key][0])
+    }
 
-    else if (form[key].length > 0)
-      body.append(key, form[key])
+    else if (key === 'status') {
+      body.append(key, form[key].toString())
+    }
+
+    else if (form[key].length > 0 || form[key] > 0) {
+      console.log(form[key])
+      body.append(key, form[key].toString())
+    }
   })
+  console.log(body)
 
   const res: AxiosResponse<ProductResponse> = await apiHandler.FormPost({
     url,
@@ -59,13 +67,15 @@ export async function updateProduct(form: ProductForm, id: string): Promise<Prod
   const body = new FormData()
 
   Object.keys(form).forEach((key) => {
-    console.log(form[key])
-    if (key === 'image_url' && form[key].length > 0)
+    if (key === 'image_file' && form[key].length > 0)
       body.append(key, form[key][0])
 
-    else if (form[key].length > 0)
+    else if (form[key].length > 0 || form[key] > 0)
       body.append(key, form[key])
   })
+
+  if (form.image_file && form.image_url.length > 0)
+    body.delete('image_url')
 
   const res: AxiosResponse<ProductResponse> = await apiHandler.FormPatch({
     url,

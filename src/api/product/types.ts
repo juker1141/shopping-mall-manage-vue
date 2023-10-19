@@ -9,7 +9,7 @@ export interface ProductResponse {
   content: string
   status: 1 | 0
   image_url: string
-  images_url: string
+  images_url: string[]
   created_by: string
   created_at: string
 }
@@ -25,7 +25,7 @@ export interface ProductForm {
   status: 1 | 0
   image_file: any[]
   image_url: string
-  images_url: string
+  images_url: string[]
   [key: string]: any
 }
 
