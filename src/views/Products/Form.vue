@@ -94,22 +94,22 @@ const addRules = ref<FormRules>({
 })
 const editRules = ref<FormRules>({
   title: {
-    required: false,
+    required: true,
     message: '商品名稱必填',
   },
   category: {
-    required: false, message: '類別必填',
+    required: true, message: '類別必填',
   },
-  price: { required: false, type: 'number', message: '商品售價必填' },
-  origin_price: { required: false, type: 'number', message: '商品原價必填' },
+  price: { required: true, type: 'number', message: '商品售價必填' },
+  origin_price: { required: true, type: 'number', message: '商品原價必填' },
   unit: {
-    required: false, message: '商品單位必填',
+    required: true, message: '商品單位必填',
   },
   content: {
-    required: false, message: '商品內容必填',
+    required: true, message: '商品內容必填',
   },
   description: {
-    required: false, message: '商品描述必填',
+    required: true, message: '商品描述必填',
   },
   status: { required: true, type: 'integer', message: '商品是否啟用必填' },
   image_file: {
@@ -137,12 +137,7 @@ function uploadImageHandler(file: any, files: any) {
   }
 }
 
-function removeUploadImage() {
-  form.image_file = []
-  uploadImageUrl.value = ''
-}
-
-async function getAdminUserData() {
+async function getProductData() {
   try {
     const id: string = currentRoute.value.params.id as string
     const response = await getProduct(id)
@@ -176,11 +171,11 @@ onMounted(async () => {
     switch (true) {
       case isEditPageType(type):
         actionText.value = '更改'
-        await getAdminUserData()
+        await getProductData()
         break
       case isDeletePageType(type):
         actionText.value = '刪除'
-        await getAdminUserData()
+        await getProductData()
         break
       default:
         break

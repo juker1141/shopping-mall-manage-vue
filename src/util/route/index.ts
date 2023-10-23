@@ -1,8 +1,5 @@
-export type routeType = 'layout' | 'list' | 'add' | 'edit' | 'delete'
-
-// export function checkPageType(type: routeType ) {
-
-// }
+export type routeType = 'layout' | 'list' | 'add' | 'edit' | 'delete' |
+'detail'
 
 export function isAddPageType(type: routeType): boolean {
   if (type === 'add')

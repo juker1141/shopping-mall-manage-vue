@@ -76,15 +76,55 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/orders',
-        name: 'Orders',
-        component: Forms,
+        name: 'OrdersLayout',
+        component: () => import('./views/Orders/Index.vue'),
         meta: { pageTitle: '訂單管理' },
+        children: [
+          {
+            path: '',
+            name: 'OrderList',
+            component: () => import('./views/Orders/Table.vue'),
+            meta: { pageTitle: '訂單列表', type: 'list' },
+          },
+          {
+            path: 'detail/:id',
+            name: 'OrderDetail',
+            component: () => import('./views/Orders/Detail.vue'),
+            meta: { pageTitle: '訂單內容', type: 'detail' },
+          },
+        ],
       },
       {
         path: '/coupons',
-        name: 'Coupons',
-        component: Forms,
+        name: 'CouponsLayout',
+        component: () => import('./views/Coupons/Index.vue'),
         meta: { pageTitle: '優惠卷管理' },
+        children: [
+          {
+            path: '',
+            name: 'CouponList',
+            component: () => import('./views/Coupons/Table.vue'),
+            meta: { pageTitle: '優惠卷列表', type: 'list' },
+          },
+          {
+            path: 'add',
+            name: 'CouponAdd',
+            component: () => import('./views/Coupons/Form.vue'),
+            meta: { pageTitle: '新增優惠卷', type: 'add' },
+          },
+          {
+            path: 'edit/:id',
+            name: 'CouponEdit',
+            component: () => import('./views/Coupons/Form.vue'),
+            meta: { pageTitle: '更改優惠卷', type: 'edit' },
+          },
+          {
+            path: 'delete/:id',
+            name: 'CouponDelete',
+            component: () => import('./views/Coupons/Form.vue'),
+            meta: { pageTitle: '刪除優惠卷', type: 'delete' },
+          },
+        ],
       },
       {
         path: '/members',
