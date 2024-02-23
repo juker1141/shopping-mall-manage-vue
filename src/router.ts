@@ -257,7 +257,7 @@ const routes: RouteRecordRaw[] = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.VITE_BASE),
+  history: createWebHistory("/admin/"),
   routes,
 })
 
