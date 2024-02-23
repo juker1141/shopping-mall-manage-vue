@@ -27,36 +27,40 @@ jobs:
           role-to-assume: arn:aws:iam::617893088694:role/GitHubAction-AssumeRoleWithAction
           aws-region: ap-northeast-1
 
-      - name: Install Node.js and npm
-        uses: actions/setup-node@v2
-        with:
-          node-version: "18"
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build Next.js app
-        run: npm run build --if-present
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Set up environment
         run: |
           echo "VITE_BACKEND_HOST=${{ secrets.VITE_BACKEND_HOST }}" >> .env
           echo "VITE_BASE=${{ secrets.VITE_BASE }}" >> .env
 
-      - name: Deploy to EC2
-        uses: easingthemes/ssh-deploy@main
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
-          REMOTE_HOST: ${{ secrets.AWS_SERVER }}
-          REMOTE_USER: ${{ secrets.AWS_USER }}
-          ARGS: "-rlgoDzvc -i --delete"
-          SOURCE: "dist/"
-          TARGET: "/home/ec2-user/shopping-mall-manage-vue/dist"
+      - name: Build, tag, and push docker image to Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: shopping-mall-manage-vue
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build --no-cache -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -t $REGISTRY/$REPOSITORY:latest .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker push $REGISTRY/$REPOSITORY:latest
 
-      - name: Connect to AWS EC2 and restarts nginx
+      - name: Connect to AWS EC2 and deploy
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: shopping-mall-manage-vue
         run: |
           echo "${AWS_PRIVATE_KEY}" > private_key && chmod 400 private_key
 
+          scp -o StrictHostKeyChecking=no -i private_key ./docker-compose-production.yml ${AWS_USER}@${AWS_SERVER}:/home/ec2-user
+
           ssh -o StrictHostKeyChecking=no -i private_key ${AWS_USER}@${AWS_SERVER} "
-            docker-compose -f nginx/docker-compose.yml restart
+            sudo mkdir -p /home/ec2-user/$REPOSITORY &&
+            sudo mv /home/ec2-user/docker-compose.yml /home/ec2-user/$REPOSITORY/docker-compose.yml &&
+
+            aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 617893088694.dkr.ecr.ap-northeast-1.amazonaws.com &&
+            docker rmi $REGISTRY/$REPOSITORY:latest -f || true
+            docker-compose -f $REPOSITORY/docker-compose.yml down &&
+            docker-compose -f $REPOSITORY/docker-compose.yml up -d
           "
