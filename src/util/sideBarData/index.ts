@@ -1,10 +1,10 @@
 export const sideBarData = [
-  {
-    title: '最新消息管理',
-    icon: ['fas', 'fa-newspaper'],
-    path: '/news',
-    style: 'default',
-  },
+  // {
+  //   title: '最新消息管理',
+  //   icon: ['fas', 'fa-newspaper'],
+  //   path: '/news',
+  //   style: 'default',
+  // },
   {
     title: '商品管理',
     icon: ['fas', 'fa-box'],

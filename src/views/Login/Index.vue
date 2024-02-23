@@ -31,7 +31,7 @@ async function login() {
 
     setCookie(AuthToken, response.access_token)
     setCookie(RefreshToken, response.refresh_token)
-    router.push('/dashboard')
+    router.push('/home')
   }
   catch (err: any) {
     console.log(err)
