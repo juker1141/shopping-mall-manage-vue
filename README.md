@@ -1,4 +1,8 @@
-# V-Dashboard
+# Shopping Mall Manage System
+
+一個範例後台網站 with V-Dashboard，串接自己的 Golang with gin 後端 API
+
+## V-Dashboard
 
 Dashboard starter template built with Vite, Vue 3, Tailwind CSS and TypeScript.
 

@@ -1,0 +1,65 @@
+name: Deploy Next.js to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_USER: ${{ secrets.AWS_USER }}
+      AWS_SERVER: ${{ secrets.AWS_SERVER }}
+      AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
+        with:
+          role-to-assume: arn:aws:iam::617893088694:role/GitHubAction-AssumeRoleWithAction
+          aws-region: ap-northeast-1
+
+      - name: Install Node.js and npm
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Next.js app
+        run: npm run build --if-present
+
+      - name: Set up environment
+        run: |
+          echo "VITE_BACKEND_HOST=${{ secrets.VITE_BACKEND_HOST }}" >> .env
+          echo "VITE_BASE=${{ secrets.VITE_BASE }}" >> .env
+
+      - name: Deploy to EC2
+        uses: easingthemes/ssh-deploy@main
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ secrets.AWS_SERVER }}
+          REMOTE_USER: ${{ secrets.AWS_USER }}
+          ARGS: "-rlgoDzvc -i --delete"
+          SOURCE: "dist/"
+          TARGET: "/home/ec2-user/shopping-mall-manage-vue/"
+
+      - name: Connect to AWS EC2 and deploy
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: portfolio-next-v2
+        run: |
+          echo "${AWS_PRIVATE_KEY}" > private_key && chmod 400 private_key
+
+          ssh -o StrictHostKeyChecking=no -i private_key ${AWS_USER}@${AWS_SERVER} "
+            docker-compose -f nginx/docker-compose.yml restart
+          "

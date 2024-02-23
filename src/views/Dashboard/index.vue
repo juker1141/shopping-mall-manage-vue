@@ -26,7 +26,7 @@ const users = ref<User[]>([...Array(10).keys()].map(() => testUser))
   <div>
     <div class="w-full h-96 bg-white rounded-lg flex justify-center items-center">
       <h3 class="font-bold text-4xl">
-        Welcome to Shopping-Mall Dashboard
+        Welcome to Shopping Mall Dashboard
       </h3>
     </div>
     <!-- <h3 class="text-3xl font-medium text-gray-700">

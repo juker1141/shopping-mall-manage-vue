@@ -39,7 +39,13 @@ export interface AdminUserResponse extends AdminUser {
   role: Role
 }
 
-export interface AdminUserInfo extends AdminUser {
+export interface AdminUserInfo {
+  id: number
+  account: string
+  full_name: string
+  status: 0 | 1
+  password_changed_at: string
+  created_at: string
   permission_list: Permission[]
 }
 
