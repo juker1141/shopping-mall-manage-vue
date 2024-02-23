@@ -51,12 +51,9 @@ jobs:
           REMOTE_USER: ${{ secrets.AWS_USER }}
           ARGS: "-rlgoDzvc -i --delete"
           SOURCE: "dist/"
-          TARGET: "/home/ec2-user/shopping-mall-manage-vue/"
+          TARGET: "/home/ec2-user/shopping-mall-manage-vue/dist"
 
-      - name: Connect to AWS EC2 and deploy
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: portfolio-next-v2
+      - name: Connect to AWS EC2 and restarts nginx
         run: |
           echo "${AWS_PRIVATE_KEY}" > private_key && chmod 400 private_key
 
