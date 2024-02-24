@@ -5,4 +5,4 @@ services:
       context: .
       dockerfile: ./Dockerfile
     ports:
-      - "5500:8080"
+      - "6300:6300"

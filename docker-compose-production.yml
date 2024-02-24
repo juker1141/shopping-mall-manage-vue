@@ -3,7 +3,7 @@ services:
   admin:
     image: 617893088694.dkr.ecr.ap-northeast-1.amazonaws.com/shopping-mall-manage-vue:latest
     ports:
-      - "5500:8080"
+      - "6300:6300"
     networks:
       - ec2-network
 

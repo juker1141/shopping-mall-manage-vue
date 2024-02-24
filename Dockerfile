@@ -17,5 +17,5 @@ COPY nginx.conf /etc/nginx/nginx.conf
 RUN rm -rf /usr/share/nginx/html/*
 # Copy from the stage 1
 COPY --from=builder /app/dist /usr/share/nginx/html/admin
-EXPOSE 8080
+EXPOSE 6300
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
