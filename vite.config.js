@@ -5,7 +5,7 @@ import vue from '@vitejs/plugin-vue'
 
 function config({ mode }) {
   return defineConfig({
-    base: "./",
+    base: "/admin/",
     plugins: [
       vue(),
     ],

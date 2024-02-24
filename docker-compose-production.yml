@@ -1,9 +1,9 @@
 version: "3"
 services:
-  shopping-mall:
+  admin:
     image: 617893088694.dkr.ecr.ap-northeast-1.amazonaws.com/shopping-mall-manage-vue:latest
     ports:
-      - "5500:5500"
+      - "5500:8080"
     networks:
       - ec2-network
 

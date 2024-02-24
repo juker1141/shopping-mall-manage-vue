@@ -2,7 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_BACKEND_HOST: string
-  readonly VITE_BASE: string
+  readonly VITE_BASE_URL: string
 }
 
 interface ImportMeta {
